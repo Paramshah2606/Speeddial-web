@@ -1,10 +1,11 @@
+import constant from "@/config/constant";
 import AgoraRTC from "agora-rtc-sdk-ng";
 const { useSocket } = require("@/context/socketContext");
 const { useRouter } = require("next/navigation");
 const { useRef, useState, useEffect } = require("react");
 import { toast } from "react-toastify";
 
-const APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID;
+const APP_ID = constant.Agora_App_id;
 
 export default function useAgoraCall(callId){
     const user = useRef(null);
@@ -259,7 +260,7 @@ export default function useAgoraCall(callId){
 }
 
 async function fetchToken(channelName, uid) {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_DEV_URL}/api/agora/token`, {
+    const response = await fetch(`${constant.Server_Url}/api/agora/token`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

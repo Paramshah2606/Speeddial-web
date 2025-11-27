@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Phone, User, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { toast } from "react-toastify";
+import constant from "@/config/constant";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -19,7 +20,7 @@ export default function AuthPage() {
     setLoading(true);
      try {
       const endpoint = isLogin ? "/api/login" : "/api/register";
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_DEV_URL}${endpoint}`, {
+      const res = await fetch(`${constant.Server_Url}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

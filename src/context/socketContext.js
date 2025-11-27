@@ -1,5 +1,6 @@
 "use client";
 
+import constant from "@/config/constant";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -17,7 +18,7 @@ export function SocketProvider({ children }) {
 
   useEffect(() => {
     // connect to backend socket server
-    const s = io(`${process.env.NEXT_PUBLIC_SERVER_DEV_URL}`, {
+    const s = io(`${constant.Server_Url}`, {
       transports: ["websocket"],
       autoConnect: true,
     });

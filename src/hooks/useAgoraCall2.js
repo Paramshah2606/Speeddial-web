@@ -1,10 +1,11 @@
+import constant from "@/config/constant";
 import AgoraRTC from "agora-rtc-sdk-ng";
 const { useSocket } = require("@/context/socketContext");
 const { useRouter } = require("next/navigation");
 const { useRef, useState, useEffect } = require("react");
 import { toast } from "react-toastify";
 
-const APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID;
+const APP_ID = constant.Agora_App_id;
 
 export default function useAgoraCall2(callId){
     const user = useRef(null);
