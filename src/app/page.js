@@ -144,7 +144,7 @@ export default function SpeedDialLanding() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white text-gray-700"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -315,11 +315,13 @@ export default function SpeedDialLanding() {
                   <div className="hidden md:block absolute top-24 left-full w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 -translate-x-1/2 z-0"></div>
                 )}
                 <div className="relative bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300 hover:scale-105">
-                  <div className="text-5xl font-bold text-blue-500/20 dark:text-blue-500/10 mb-4">
+                  <div className='flex gap-10'>
+                  <div className="text-5xl font-bold text-blue-500 dark:text-gray-200 mb-4">
                     {step.step}
                   </div>
                   <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white mb-6 shadow-lg transform hover:rotate-12 transition-transform">
                     {step.icon}
+                  </div>
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                     {step.title}
