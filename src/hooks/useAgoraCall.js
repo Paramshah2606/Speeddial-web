@@ -23,8 +23,6 @@ export default function useAgoraCall(callId){
     const [callDuration, setCallDuration] = useState(0);
     const [activeSpeaker, setActiveSpeaker] = useState(null);
 
-    const { socket, endCall,cancelCall } = useSocket();
-
     const router = useRouter();
 
     async function joinChannel() {
@@ -162,14 +160,6 @@ export default function useAgoraCall(callId){
     setIsAudioEnabled(false);
     setIsVideoEnabled(false);
     setIsScreenSharing(false);
-
-    if (socket){
-      if(remoteUsers.length==0){
-        cancelCall(callId);
-      }else{
-        endCall(callId);
-      }
-    } 
     router.push("/user/home");
   }
 

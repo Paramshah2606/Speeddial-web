@@ -18,6 +18,7 @@ import {
   X
 } from "lucide-react";
 import useAgoraCall from "@/hooks/useAgoraCall";
+import { useSocket } from "@/context/socketContext";
 
 export default function CallPage() {
   const { callId } = useParams();
@@ -26,6 +27,8 @@ export default function CallPage() {
   const [showLayoutMenu, setShowLayoutMenu] = useState(false);
   const [selectedLayout, setSelectedLayout] = useState("grid"); // grid, sidebar, spotlight, pip
   const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  const { socket, endCall,cancelCall } = useSocket();
 
   const user = useRef(null);
   const hideControlsTimer = useRef(null);
@@ -535,7 +538,16 @@ export default function CallPage() {
                 </button>
 
                 <button
-                  onClick={leaveChannel}
+                  onClick={()=>{
+                    leaveChannel();
+                    if (socket){
+                      if(remoteUsers.length==0){
+                        cancelCall(callId);
+                      }else{
+                        endCall(callId);
+                      }
+                    } 
+                  }}
                   className="group relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 flex items-center justify-center transition-all transform hover:scale-110 active:scale-95 shadow-2xl ml-2 text-white border-2 border-red-600 dark:border-red-500"
                 >
                   <PhoneOff className="w-7 h-7 sm:w-9 sm:h-9" />
