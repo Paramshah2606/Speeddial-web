@@ -89,6 +89,16 @@ export function SocketProvider({ children }) {
       router.push(`/user/home`);
     });
 
+    s.on("call:unavailable", (data) => {
+      console.log("call:canceled", data);
+      toast.error(data.message || "Receiver is not available");
+      setCallState((prev) => ({
+        ...prev,
+        incoming: null,
+        activeCall: null,
+      }));
+    });
+
     return () => s.disconnect();
   }, []);
 

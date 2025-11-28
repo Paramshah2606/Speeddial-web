@@ -36,16 +36,16 @@ export default function useAgoraCall(callId){
 
     client.current.on("volume-indicator", (volumes) => {
       volumes.forEach((volume) => {
-        if (volume.level > 10) {
+        // volume.level is between 0–100
+        if (volume.level > 30) {   // Increase threshold
           setActiveSpeaker(volume.uid);
-          setTimeout(() => {
-            setActiveSpeaker(null);
-          }, 1000);
+          setTimeout(() => setActiveSpeaker(null), 1000);
         }
       });
     });
 
     client.current.on("user-joined", (user) => {
+      console.log("user joined",user);
       setRemoteUsers((prev) => {
         const exists = prev.some((u) => u.uid === user.uid);
         if (exists) return prev;
@@ -116,7 +116,13 @@ export default function useAgoraCall(callId){
       toast.error("No microphone found.");
       setIsAudioEnabled(false);
     } else {
-      localAudioTrack.current = await AgoraRTC.createMicrophoneAudioTrack();
+      // localAudioTrack.current = await AgoraRTC.createMicrophoneAudioTrack();
+      localAudioTrack.current = await AgoraRTC.createMicrophoneAudioTrack({
+        AEC: true,  // echo cancellation
+        AGC: true,  // auto gain control
+        ANS: true   // noise suppression
+      });
+
       await client.current.publish([localAudioTrack.current]);
       setIsAudioEnabled(true);
     }
@@ -202,62 +208,39 @@ export default function useAgoraCall(callId){
     }
   }
 
+  function isScreenShareSupported() {
+    return !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
+  }
+
   async function startScreenShare() {
-  if (isScreenSharing) {
-    // Stop screen share
-    if (screenTrack.current) {
-      // If multi-track: videoTrack + audioTrack
-      const tracks = Array.isArray(screenTrack.current)
-        ? screenTrack.current
-        : [screenTrack.current];
-
-      await client.current.unpublish(tracks);
-
-      tracks.forEach(t => {
-        if (t.stop) t.stop();
-        if (t.close) t.close();
-      });
-
-      screenTrack.current = null;
+    if (!isScreenShareSupported()) {
+      toast.error("Screen sharing is not supported on this device/browser.");
+      return;
     }
-
-    setIsScreenSharing(false);
-
-    // Restore camera video if it was on
-    if (localVideoTrack.current) {
-      await client.current.publish(localVideoTrack.current);
+    if (isScreenSharing) {
+      if (screenTrack.current) {
+        await client.current.unpublish(screenTrack.current);
+        screenTrack.current.stop();
+        screenTrack.current.close();
+        screenTrack.current = null;
+      }
+      setIsScreenSharing(false);
+      if (localVideoTrack.current) {
+        await client.current.publish(localVideoTrack.current);
+      }
+      return;
     }
-
-    return;
+    try {
+      screenTrack.current = await AgoraRTC.createScreenVideoTrack();
+      if (localVideoTrack.current) {
+        await client.current.unpublish(localVideoTrack.current);
+      }
+      await client.current.publish(screenTrack.current);
+      setIsScreenSharing(true);
+    } catch (err) {
+      toast.error("Screen share permission denied");
+    }
   }
-
-  try {
-    // IMPORTANT: createScreenVideoTrack may return [video, audio]
-    const track = await AgoraRTC.createScreenVideoTrack({}, "auto");
-
-    if (Array.isArray(track)) {
-      // Browser supports screen audio
-      screenTrack.current = track; // video + audio
-      await client.current.publish(track);
-    } else {
-      // Only video
-      screenTrack.current = [track];
-      
-      await client.current.publish([track]);
-    }
-
-    // Unpublish camera while screen-sharing
-    if (localVideoTrack.current) {
-      await client.current.unpublish(localVideoTrack.current);
-    }
-
-    setIsScreenSharing(true);
-
-  } catch (err) {
-    console.log(err);
-    toast.error("Screen share permission denied");
-  }
-}
 
 async function fetchToken(channelName, uid) {
     const response = await fetch(`${constant.Server_Url}/api/agora/token`, {
@@ -329,6 +312,17 @@ useEffect(() => {
         leaveChannel();
       };
     }, []);
+
+    // useEffect(()=>{
+    //   if(!socket) return;
+      
+    //   socket.on("abc", abc);
+
+    //   return () =>{
+    //     socket.off("abc",abc);
+    //   }
+
+    // },[socket]);
 
   return {localVideoTrack,joined,remoteUsers,isAudioEnabled,isVideoEnabled,isScreenSharing,callDuration,activeSpeaker,joinChannel,leaveChannel,toggleAudio,toggleVideo,startScreenShare};
 }

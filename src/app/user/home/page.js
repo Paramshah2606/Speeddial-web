@@ -117,8 +117,14 @@ const handleReject = () => {
 };
 
 const onLogout = () => {
-  localStorage.removeItem('user');
-  router.replace('/auth');
+  try {
+    localStorage.removeItem('user');
+    router.push('/auth');
+    socket.disconnect();
+  } catch (error) {
+    console.log("Error",error);
+    toast.error("some error occured in logging out ");
+  }
 }
 
 
@@ -163,11 +169,11 @@ const onLogout = () => {
               <div className="flex gap-3">
                 <div className="hidden sm:flex items-center gap-3 bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-xl">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold">
-                    {(user.name || "U")[0].toUpperCase()}
+                    {(user.username || "U")[0].toUpperCase()}
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                      {user.name || "User"}
+                      {user.username || "User"}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {user.callingNumber || "No Number"}

@@ -15,7 +15,9 @@ export default function AuthPage() {
   const router=useRouter();
 
   async function handleSubmit() {
-    if (!username || !password) return;
+    const cleanUsername = username.trim();
+    const cleanPassword = password.trim();
+    if (!cleanUsername || !cleanPassword) return;
     
     setLoading(true);
      try {
@@ -23,7 +25,7 @@ export default function AuthPage() {
       const res = await fetch(`${constant.Server_Url}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username:cleanUsername, password:cleanPassword }),
       });
 
       const data = await res.json();

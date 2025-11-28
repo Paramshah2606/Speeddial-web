@@ -187,7 +187,7 @@ export default function CallPage() {
                      user.current?.name || "You",
                      user.current?.id,
                      isVideoEnabled,
-                     activeSpeaker === user.current?.id,
+                     activeSpeaker == user.current?.id,
                      true
                    )}
                  </div>
@@ -202,7 +202,7 @@ export default function CallPage() {
                        remoteUser.name || `User ${remoteUser.uid}`,
                        remoteUser.uid,
                        !!remoteUser.videoTrack,
-                       activeSpeaker === remoteUser.uid,
+                       activeSpeaker == remoteUser.uid,
                        false
                      )}
                    </div>

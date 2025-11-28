@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Phone, Video, Users, Zap, Shield, Clock, ArrowRight, CheckCircle, PhoneCall, Monitor, Mic, Camera, Menu, X, Code, Database, Wifi } from 'lucide-react';
+import { Phone, Video, Users, Zap, Shield, Clock, ArrowRight, PhoneCall, Monitor, Menu, X } from 'lucide-react';
 
 export default function SpeedDialLanding() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -58,15 +58,36 @@ export default function SpeedDialLanding() {
     }
   ];
 
-  const technologies = [
-    { name: "Next.js", icon: "⚡", color: "from-black to-gray-700" },
-    { name: "Node.js", icon: "🟢", color: "from-green-600 to-green-700" },
-    { name: "Socket.io", icon: "🔌", color: "from-blue-600 to-blue-700" },
-    { name: "Agora", icon: "📹", color: "from-purple-600 to-purple-700" },
-    { name: "MySQL", icon: "🗄️", color: "from-blue-500 to-cyan-600" },
-    { name: "Sequelize", icon: "📊", color: "from-indigo-600 to-indigo-700" },
-    { name: "Tailwind", icon: "🎨", color: "from-cyan-500 to-blue-500" }
-  ];
+const technologies = [
+  { 
+    name: "Next.js", 
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" 
+  },
+  { 
+    name: "Node.js", 
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" 
+  },
+  { 
+    name: "Socket.io", 
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/socketio/socketio-original.svg" 
+  },
+  { 
+    name: "Agora", 
+    icon: "https://cdnjs.cloudflare.com/ajax/libs/simple-icons/15.16.0/agora.svg" 
+  },
+  { 
+    name: "MySQL", 
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" 
+  },
+  { 
+    name: "Sequelize", 
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sequelize/sequelize-original.svg" 
+  },
+  { 
+    name: "Tailwind CSS", 
+    icon: "/tailwind-logo-wbg.png"
+  }
+];
 
   const handleGetStarted = () => {
     window.location.href = '/auth';
@@ -348,26 +369,60 @@ export default function SpeedDialLanding() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
+          {/* <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
             {technologies.map((tech, index) => (
               <div
                 key={index}
                 className="group animate-on-scroll"
-                style={{animationDelay: `${index * 0.1}s`}}
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className={`bg-gradient-to-br ${tech.color} p-6 rounded-2xl shadow-lg hover:shadow-2xl transform hover:scale-110 transition-all duration-300 cursor-pointer`}>
                   <div className="text-center">
-                    <div className="text-4xl mb-3 transform group-hover:scale-125 transition-transform">
+                    <div className="mb-3 transform group-hover:scale-125 transition-transform flex justify-center">
                       {tech.icon}
                     </div>
-                    <p className="text-white font-semibold text-sm">
-                      {tech.name}
-                    </p>
+                    <p className="text-white font-semibold text-sm">{tech.name}</p>
                   </div>
                 </div>
               </div>
             ))}
-          </div>
+          </div> */}
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
+  {technologies.map((tech, index) => (
+    <div
+      key={index}
+      className="group animate-on-scroll"
+      style={{ animationDelay: `${index * 0.1}s` }}
+    >
+      <div
+        className="
+          p-6 rounded-2xl 
+          bg-white/10 dark:bg-white/5
+          backdrop-blur-md
+          border border-white/20 dark:border-white/10
+          shadow-lg hover:shadow-xl
+          transform hover:scale-105
+          transition-all duration-300 cursor-pointer
+        "
+      >
+        <div className="text-center">
+          <img
+            src={tech.icon}
+            alt={tech.name}
+            className="w-12 h-12 mx-auto mb-3 group-hover:scale-125 transition-transform "
+          />
+
+          <p className="text-gray-800 dark:text-gray-200 font-semibold text-sm">
+            {tech.name}
+          </p>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
+
         </div>
       </section>
 
