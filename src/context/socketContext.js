@@ -18,7 +18,7 @@ export function SocketProvider({ children }) {
 
   useEffect(() => {
     // connect to backend socket server
-    const s = io(`${constant.Server_Url}`, {
+    const s = io(`${constant.Server_Url}/`, {
       transports: ["websocket"],
       autoConnect: true,
     });

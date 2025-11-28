@@ -134,11 +134,15 @@ export default function useAgoraCall(callId){
     if (localAudioTrack.current) {
       localAudioTrack.current.stop();
       localAudioTrack.current.close();
+      const mediaStreamTrack = localAudioTrack.current.getMediaStreamTrack();
+      if (mediaStreamTrack) mediaStreamTrack.stop();
       localAudioTrack.current = null;
     }
     if (localVideoTrack.current) {
       localVideoTrack.current.stop();
       localVideoTrack.current.close();
+       const mediaStreamTrack = localVideoTrack.current.getMediaStreamTrack();
+      if (mediaStreamTrack) mediaStreamTrack.stop();
       localVideoTrack.current = null;
     }
     if (screenTrack.current) {
