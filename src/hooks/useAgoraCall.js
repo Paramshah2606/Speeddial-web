@@ -23,7 +23,7 @@ export default function useAgoraCall(callId){
     const [callDuration, setCallDuration] = useState(0);
     const [activeSpeaker, setActiveSpeaker] = useState(null);
 
-    const { socket, endCall } = useSocket();
+    const { socket, endCall,cancelCall } = useSocket();
 
     const router = useRouter();
 
@@ -163,7 +163,13 @@ export default function useAgoraCall(callId){
     setIsVideoEnabled(false);
     setIsScreenSharing(false);
 
-    if (socket) endCall(callId);
+    if (socket){
+      if(remoteUsers.length==0){
+        cancelCall(callId);
+      }else{
+        endCall(callId);
+      }
+    } 
     router.push("/user/home");
   }
 
@@ -316,17 +322,6 @@ useEffect(() => {
         leaveChannel();
       };
     }, []);
-
-    // useEffect(()=>{
-    //   if(!socket) return;
-      
-    //   socket.on("abc", abc);
-
-    //   return () =>{
-    //     socket.off("abc",abc);
-    //   }
-
-    // },[socket]);
 
   return {localVideoTrack,joined,remoteUsers,isAudioEnabled,isVideoEnabled,isScreenSharing,callDuration,activeSpeaker,joinChannel,leaveChannel,toggleAudio,toggleVideo,startScreenShare};
 }

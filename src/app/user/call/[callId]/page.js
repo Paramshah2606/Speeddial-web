@@ -144,8 +144,9 @@ export default function CallPage() {
 
   // Effect to replay video tracks when layout changes
   useEffect(() => {
+    // console.log("local video track changed");
     if (!localVideoTrack.current || !joined) return;
-
+    console.log("playing screenshare");
     const timer = setTimeout(() => {
       // Replay local video
       if (isVideoEnabled && localVideoTrack) {
@@ -234,7 +235,7 @@ export default function CallPage() {
 
     if (remoteUsers.length === 0) {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full max-h-[70vh]">
+        <div className="grid grid-cols-1 gap-4 h-full max-h-[70vh]">
           {(isVideoEnabled || remoteUsers.length>0) && 
             <div className="relative h-full">
               {renderVideoTile(

@@ -68,7 +68,7 @@ export function SocketProvider({ children }) {
       router.push(`/user/home`)
     });
 
-    // =============== Call Canceled ===============
+    // // =============== Call Canceled ===============
     s.on("call:canceled", (data) => {
       console.log("call:canceled", data);
       setCallState((prev) => ({
@@ -97,6 +97,16 @@ export function SocketProvider({ children }) {
         incoming: null,
         activeCall: null,
       }));
+    });
+
+    s.on("call:missed", (data) => {
+      console.log("call:missed", data);
+      setCallState((prev) => ({
+        ...prev,
+        incoming: null,
+        activeCall: null,
+      }));
+      router.push(`/user/home`);
     });
 
     return () => s.disconnect();
