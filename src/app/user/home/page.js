@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Phone, PhoneCall, Delete, Menu, X, History, Grid3x3, PhoneIncoming, PhoneOutgoing, PhoneMissed, Clock, User } from "lucide-react";
+import { Phone, PhoneCall, Delete, Menu, X, History, Grid3x3, PhoneIncoming, PhoneOutgoing, PhoneMissed, Clock, User, LogOut } from "lucide-react";
 import IncomingCallPopup from "@/components/IncomingCallPopup";
 import constant from "@/config/constant";
 import { useSocket } from "@/context/socketContext";
@@ -101,6 +101,23 @@ useEffect(() => {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [to, activeTab]);
 
+  function getCallDuration(start, end) {
+    if (!start || !end) return null;
+
+    const s = new Date(start);
+    const e = new Date(end);
+
+    const diffMs = e - s; // milliseconds
+    if (diffMs <= 0) return null;
+
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+
+    return `${mins}m ${secs}s`;
+  }
+
+
   function formatVirtualNumber(value) {
     const digits = value.replace(/\D/g, "").slice(0, 6);
     const p1 = digits.slice(0, 3);
@@ -183,6 +200,14 @@ useEffect(() => {
     return call.participants.find(p => p.userId !== user?.id);
   };
 
+  function handleDirectCall(number) {
+    socket.emit("call:request", {
+      from: user?.callingNumber,
+      to: number,
+      fromUser: user?.username
+    });
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {showIncomingPopup && (
@@ -231,9 +256,9 @@ useEffect(() => {
                 </div>
                 <button
                   onClick={onLogout}
-                  className="hidden sm:block bg-red-600 hover:bg-red-700 px-3 py-0.5 rounded-md text-sm transition"
+                  className="hidden sm:block bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-md text-sm transition"
                 >
-                  Logout
+                  <LogOut size={20}/>
                 </button>
               </div>
             )}
@@ -248,7 +273,7 @@ useEffect(() => {
 
           {menuOpen && user && (
             <div className="sm:hidden mt-4 p-4 bg-gray-100 dark:bg-gray-700 rounded-xl">
-              <div className="flex justify-between">
+              <div className="flex justify-between h-full">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
                     {(user.username || "U")[0].toUpperCase()}
@@ -264,9 +289,9 @@ useEffect(() => {
                 </div>
                 <button
                   onClick={onLogout}
-                  className="h-full bg-red-600 hover:bg-red-700 px-3 py-0.5 rounded-md text-sm transition"
+                  className=" bg-red-600 hover:bg-red-700 text-white px-3 py-0.5 rounded-md text-sm transition"
                 >
-                  Logout
+                  <LogOut size={20}/>
                 </button>
               </div>
             </div>
@@ -397,50 +422,67 @@ useEffect(() => {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                  <div className="space-y-3 max-h-[600px] overflow-y-auto hide-scrollbar">
                     {callHistory.map((call) => {
                       const otherParticipant = getOtherParticipant(call);
                       return (
                         <div
-                          key={call.callId}
-                          className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="flex-shrink-0">
-                              {getCallStatusIcon(call)}
-                            </div>
-                            
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <User className="w-4 h-4 text-gray-400" />
-                                <p className="font-semibold text-gray-800 dark:text-gray-200 truncate">
-                                  {otherParticipant?.username || "Unknown"}
-                                </p>
-                              </div>
-                              
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {getCallStatusText(call)}
-                              </p>
-                              
-                              {call.isGroupCall && (
-                                <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs rounded-full">
-                                  Group Call
-                                </span>
-                              )}
-                            </div>
+                    key={call.callId}
+                    className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-center gap-4">
 
-                            <button
-                              onClick={() => {
-                                // Quick redial functionality
-                                setActiveTab("dialer");
-                                // You would set the number here based on the participant
-                              }}
-                              className="flex-shrink-0 p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-500 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition"
-                            >
-                              <PhoneCall className="w-5 h-5" />
-                            </button>
-                          </div>
+                      {/* Status Icon */}
+                      <div className="flex-shrink-0">
+                        {getCallStatusIcon(call)}
+                      </div>
+
+                      {/* Middle Column */}
+                      <div className="flex-1 min-w-0 flex flex-col">
+
+                        {/* Name */}
+                        <p className="font-semibold text-gray-800 dark:text-gray-200 truncate">
+                          {otherParticipant?.username || "Unknown"}
+                        </p>
+
+                        {/* Virtual Number */}
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {call.otherUser?.virtualNumber || "—"}
+                        </p>
+
+                        {/* Status + Duration (same line) */}
+                        <div className="flex items-center gap-2 mt-1 text-sm text-gray-500 dark:text-gray-400">
+                          <span>{getCallStatusText(call)}</span>
+
+                          {call.startTime && call.endTime && (
+                            <>
+                              <span>•</span>
+                              <span className="text-xs text-gray-400 dark:text-gray-500">
+                                {getCallDuration(call.startTime, call.endTime)}
+                              </span>
+                            </>
+                          )}
                         </div>
+
+                        {/* Group Call Tag */}
+                        {call.isGroupCall && (
+                          <span className="inline-block mt-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs rounded-full">
+                            Group Call
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Redial */}
+                      <button
+                        onClick={() => handleDirectCall(call.otherUser?.virtualNumber)}
+                        className="flex-shrink-0 p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-500 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition"
+                      >
+                        <PhoneCall className="w-5 h-5" />
+                      </button>
+
+                    </div>
+                  </div>
+
                       );
                     })}
                   </div>

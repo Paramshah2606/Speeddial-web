@@ -22,6 +22,7 @@ export default function useAgoraCall(callId){
     const [isScreenSharing, setIsScreenSharing] = useState(false);
     const [callDuration, setCallDuration] = useState(0);
     const [activeSpeaker, setActiveSpeaker] = useState(null);
+    const [facingMode, setFacingMode] = useState("user"); // "user" = front, "environment" = back camera
 
     const router = useRouter();
 
@@ -208,6 +209,40 @@ export default function useAgoraCall(callId){
     }
   }
 
+  const toggleCameraFacing = async () => {
+    try {
+      const newFacing = facingMode === "user" ? "environment" : "user";
+      setFacingMode(newFacing);
+
+      // Stop current track
+      if (localVideoTrack.current) {
+        localVideoTrack.current.stop();
+        await client.current.unpublish(localVideoTrack.current);
+      }
+
+      // Create new track with new camera
+      const newVideoTrack = await AgoraRTC.createCameraVideoTrack({
+        encoderConfig: "720p",
+        facingMode: newFacing
+      });
+
+      // Replace track
+      localVideoTrack.current = newVideoTrack;
+
+      // Publish again
+      await client.current.publish(newVideoTrack);
+
+      // Replay video on screen
+      setTimeout(() => {
+        newVideoTrack.play("local-video");
+      }, 100);
+
+    } catch (err) {
+      console.error("Error switching camera:", err);
+    }
+  };
+
+
   function isScreenShareSupported() {
     return !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
   }
@@ -313,5 +348,5 @@ useEffect(() => {
       };
     }, []);
 
-  return {localVideoTrack,joined,remoteUsers,isAudioEnabled,isVideoEnabled,isScreenSharing,callDuration,activeSpeaker,joinChannel,leaveChannel,toggleAudio,toggleVideo,startScreenShare};
+  return {localVideoTrack,joined,remoteUsers,isAudioEnabled,isVideoEnabled,isScreenSharing,callDuration,activeSpeaker,joinChannel,leaveChannel,toggleAudio,toggleVideo,toggleCameraFacing,startScreenShare};
 }

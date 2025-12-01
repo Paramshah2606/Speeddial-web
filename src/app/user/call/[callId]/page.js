@@ -15,10 +15,14 @@ import {
   Users,
   Clock,
   LayoutGrid,
-  X
+  X,
+  CircleCheck,
 } from "lucide-react";
+import { PiCameraRotate } from "react-icons/pi";
 import useAgoraCall from "@/hooks/useAgoraCall";
 import { useSocket } from "@/context/socketContext";
+import { MdGridView, MdOutlinePictureInPictureAlt, MdViewSidebar } from "react-icons/md";
+import { LuLayoutGrid } from "react-icons/lu";
 
 export default function CallPage() {
   const { callId } = useParams();
@@ -33,7 +37,7 @@ export default function CallPage() {
   const user = useRef(null);
   const hideControlsTimer = useRef(null);
 
-  const {localVideoTrack,joined,remoteUsers,isAudioEnabled,isVideoEnabled,isScreenSharing,callDuration,activeSpeaker,joinChannel,leaveChannel,toggleAudio,toggleVideo,startScreenShare}=useAgoraCall(callId);
+  const {localVideoTrack,joined,remoteUsers,isAudioEnabled,isVideoEnabled,isScreenSharing,callDuration,activeSpeaker,joinChannel,leaveChannel,toggleAudio,toggleVideo,toggleCameraFacing,startScreenShare}=useAgoraCall(callId);
 
   // Detect screen size
   useEffect(() => {
@@ -87,28 +91,14 @@ export default function CallPage() {
     {
       id: "grid",
       name: "Grid View",
-      icon: (
-        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <rect x="3" y="3" width="7" height="7" rx="1" />
-          <rect x="14" y="3" width="7" height="7" rx="1" />
-          <rect x="3" y="14" width="7" height="7" rx="1" />
-          <rect x="14" y="14" width="7" height="7" rx="1" />
-        </svg>
-      ),
+      icon: <MdGridView size={32}/>,
       description: "Equal tiles",
       requiresLargeScreen: false
     },
     {
       id: "sidebar",
       name: "Sidebar View",
-      icon: (
-        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <rect x="3" y="4" width="14" height="16" rx="1" />
-          <rect x="19" y="4" width="2" height="5" rx="0.5" />
-          <rect x="19" y="11" width="2" height="5" rx="0.5" />
-          <rect x="19" y="18" width="2" height="2" rx="0.5" />
-        </svg>
-      ),
+      icon: <MdViewSidebar size={32}/>,
       description: "Main + sidebar",
       requiresLargeScreen: true
     },
@@ -129,12 +119,7 @@ export default function CallPage() {
     {
       id: "pip",
       name: "Picture-in-Picture",
-      icon: (
-        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <rect x="2" y="3" width="20" height="18" rx="2" />
-          <rect x="13" y="13" width="7" height="5" rx="1" fill="currentColor" />
-        </svg>
-      ),
+      icon: <MdOutlinePictureInPictureAlt size={32}/>,
       description: "Overlay view",
       requiresLargeScreen: false
     }
@@ -454,12 +439,28 @@ export default function CallPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 bg-gray-100 dark:bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-gray-200 dark:border-gray-700">
-                  <Users className="w-5 h-5 text-gray-700 dark:text-white" />
-                  <span className="font-semibold text-gray-800 dark:text-white">
-                    {remoteUsers.length + 1}
-                  </span>
+                <div className="flex items-center gap-3">
+  
+                  {/* Participant Count */}
+                  <div className="flex items-center gap-2 bg-gray-100 dark:bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-gray-200 dark:border-gray-700">
+                    <Users className="w-5 h-5 text-gray-700 dark:text-white" />
+                    <span className="font-semibold text-gray-800 dark:text-white">
+                      {remoteUsers.length + 1}
+                    </span>
+                  </div>
+
+                  {/* Video Toggle (only show if valid) */}
+                  { isVideoEnabled  && (
+                     <button
+                      onClick={toggleCameraFacing}
+                      className="p-3 rounded-full bg-gray-800 text-white"
+                    >
+                      <PiCameraRotate />
+                    </button>
+                  )}
+
                 </div>
+
               </div>
             </div>
           </div>
@@ -634,9 +635,7 @@ export default function CallPage() {
                     </div>
                     {selectedLayout === layout.id && (
                       <div className="w-5 h-5 lg:w-6 lg:h-6 rounded-full bg-blue-500 flex items-center justify-center">
-                        <svg className="w-3 h-3 lg:w-4 lg:h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
+                        <CircleCheck/>
                       </div>
                     )}
                   </div>

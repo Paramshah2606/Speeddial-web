@@ -85,7 +85,7 @@ const technologies = [
   },
   { 
     name: "Tailwind CSS", 
-    icon: "/tailwind-logo-wbg.png"
+    icon: "/tailwind-logo.png"
   }
 ];
 
