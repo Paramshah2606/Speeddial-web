@@ -6,6 +6,7 @@ import IncomingCallPopup from "@/components/IncomingCallPopup";
 import constant from "@/config/constant";
 import { useSocket } from "@/context/socketContext";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function Home() {
   const [incomingCall, setIncomingCall] = useState(null);
@@ -142,6 +143,10 @@ useEffect(() => {
   function handleCall() {
     const digits = to.replace(/\D/g, "");
     if (digits.length !== 6) return;
+    if(user.callingNumber==formatVirtualNumber(digits)){
+      toast.error("You have dialed your number");
+      return;
+    }
     socket.emit("call:request", {
       from: user?.callingNumber,
       to: formatVirtualNumber(digits),
@@ -201,6 +206,10 @@ useEffect(() => {
   };
 
   function handleDirectCall(number) {
+    if(user.callingNumber==number){
+      toast.error("You have dialed your number");
+      return;
+    }
     socket.emit("call:request", {
       from: user?.callingNumber,
       to: number,

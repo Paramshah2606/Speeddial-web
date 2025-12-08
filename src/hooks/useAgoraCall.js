@@ -344,6 +344,7 @@ useEffect(() => {
       joinChannel();
   
       return () => {
+        console.log("Leaving channel");
         leaveChannel();
       };
     }, []);

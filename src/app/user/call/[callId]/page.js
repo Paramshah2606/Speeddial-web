@@ -539,8 +539,12 @@ export default function CallPage() {
                 </button>
 
                 <button
-                  onClick={()=>{
-                    leaveChannel();
+                  onClick={async ()=>{
+                    await leaveChannel();
+                    try {
+                      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                      stream.getTracks().forEach(track => track.stop());
+                    } catch (err) {}
                     if (socket){
                       if(remoteUsers.length==0){
                         cancelCall(callId);

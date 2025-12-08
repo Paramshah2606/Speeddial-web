@@ -1,4 +1,3 @@
-import { SocketProvider } from "@/context/socketContext";
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
 
@@ -11,9 +10,7 @@ export default function RootLayout({ children }) {
     <html>
       <body>
         <ToastContainer position="top-right" autoClose={3000} />
-        <SocketProvider>
           {children}
-        </SocketProvider>
       </body>
     </html>
   );
