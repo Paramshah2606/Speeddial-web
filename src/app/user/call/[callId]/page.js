@@ -159,10 +159,13 @@ export default function CallPage() {
 
 
   const renderVideoTile = (videoId, userName, uid, hasVideo, isSpeaking, isLocal = false, className = "", isAudioMuted = false) => {
+    const normalizedUid = String(uid);
+    const normalizedActiveSpeaker = activeSpeaker ? String(activeSpeaker) : null;
+    const isCurrentlySpeaking = normalizedActiveSpeaker === normalizedUid && !isAudioMuted;
     return (
       <div
         className={`aspect-video relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-2xl border-4 transition-all duration-300 w-full h-full ${className} ${
-          isSpeaking && !isAudioMuted
+          isCurrentlySpeaking
             ? 'border-green-500 ring-4 ring-green-500/50' 
             : 'border-gray-200 dark:border-gray-700'
         }`}
@@ -188,7 +191,7 @@ export default function CallPage() {
           </p>
         </div>
 
-        {isSpeaking && !isAudioMuted && (
+        {isCurrentlySpeaking && (
           <div className="absolute top-3 right-3 flex items-center gap-2 bg-green-500 text-white px-3 py-1.5 rounded-full shadow-lg animate-pulse">
             <div className="w-2 h-2 rounded-full bg-white"></div>
             <span className="text-xs font-medium">Speaking</span>
@@ -201,7 +204,7 @@ export default function CallPage() {
   const renderLayout = () => {
     const localUser = {
       videoId: "local-video",
-      userName: user.current?.name || "You",
+      userName: user.current?.username || "You",
       uid: user.current?.id,
       hasVideo: isVideoEnabled,
       isSpeaking: activeSpeaker == user.current?.id,

@@ -15,6 +15,8 @@ export default function useAgoraCall(callId){
     const screenTrack = useRef(null);
     const callTimerRef=useRef(null);
 
+    const {socket}=useSocket();
+
     const [joined, setJoined] = useState(false);
     const [remoteUsers, setRemoteUsers] = useState([]);
     const [isAudioEnabled, setIsAudioEnabled] = useState(true);
@@ -33,22 +35,39 @@ export default function useAgoraCall(callId){
 
     client.current.enableAudioVolumeIndicator();
 
+    // client.current.on("volume-indicator", (volumes) => {
+    //   volumes.forEach((volume) => {
+    //     // volume.level is between 0–100
+    //     if (volume.level > 30) {   // Increase threshold
+    //       setActiveSpeaker(volume.uid);
+    //       setTimeout(() => setActiveSpeaker(null), 1000);
+    //     }
+    //   });
+    // });
+
     client.current.on("volume-indicator", (volumes) => {
+      let loudestSpeaker = null;
+      let maxLevel = 30; // threshold
+
       volumes.forEach((volume) => {
-        // volume.level is between 0–100
-        if (volume.level > 30) {   // Increase threshold
-          setActiveSpeaker(volume.uid);
-          setTimeout(() => setActiveSpeaker(null), 1000);
+        if (volume.level > maxLevel) {
+          maxLevel = volume.level;
+          loudestSpeaker = volume.uid;
         }
       });
+
+      setActiveSpeaker(loudestSpeaker);
     });
 
     client.current.on("user-joined", (user) => {
+      if (socket) {
+        socket.emit('get-user-info', { uid: user.uid, callId });
+      }
       console.log("user joined",user);
       setRemoteUsers((prev) => {
         const exists = prev.some((u) => u.uid === user.uid);
         if (exists) return prev;
-        return [...prev, { uid: user.uid, videoTrack: null, audioTrack: null }];
+        return [...prev, { uid: user.uid,name:null, videoTrack: null, audioTrack: null,hasAudio: false, name: null }];
       });
     });
 
@@ -61,7 +80,8 @@ export default function useAgoraCall(callId){
             ? {
                 ...u,
                 videoTrack: mediaType === "video" ? user.videoTrack : u.videoTrack,
-                audioTrack: mediaType === "audio" ? user.audioTrack : u.audioTrack
+                audioTrack: mediaType === "audio" ? user.audioTrack : u.audioTrack,
+                hasAudio: mediaType === "audio" ? true : u.hasAudio
               }
             : u
         )
@@ -92,7 +112,7 @@ export default function useAgoraCall(callId){
       if (mediaType === "audio") {
         setRemoteUsers(prev =>
           prev.map(u => 
-            u.uid === user.uid ? { ...u, audioTrack: null } : u
+            u.uid === user.uid ? { ...u, audioTrack: null, hasAudio: false } : u
           )
         );
       }
@@ -108,6 +128,14 @@ export default function useAgoraCall(callId){
     const token = await fetchToken(callId, uid);
 
     await client.current.join(APP_ID, callId, token, uid);
+
+    if (socket) {
+      socket.emit('broadcast-my-info', {
+        callId,
+        uid,
+        name: user.current.username
+      });
+    }
 
     // Always create audio track initially, if mic present
     const hasMic = await checkDevice("audio");
@@ -339,6 +367,18 @@ useEffect(() => {
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remoteUsers.length, joined]);
+
+  useEffect(() => {
+  if (!socket) return;
+
+  socket.on('user-info-response', ({ uid, name }) => {
+    setRemoteUsers(prev => 
+      prev.map(u => u.uid === uid ? { ...u, name } : u)
+    );
+  });
+
+  return () => socket.off('user-info-response');
+}, [socket]);
 
   useEffect(() => {
       joinChannel();
