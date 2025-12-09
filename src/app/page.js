@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Phone, Video, Users, Zap, Shield, Clock, ArrowRight, PhoneCall, Monitor, Menu, X } from 'lucide-react';
+import constant from '@/config/constant';
 
 export default function SpeedDialLanding() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -24,6 +25,23 @@ export default function SpeedDialLanding() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(()=>{
+    const startServer = async () => {
+      try {
+        const response = await fetch(
+          `${constant.Server_Url}`
+        );
+        const data = await response.json();
+        console.log("server connected",data.ok);
+      } catch (error) {
+        console.error("Failed to start server:", error);
+      }
+    };
+
+    startServer();
+
+  },[]);
 
   const features = [
     {
